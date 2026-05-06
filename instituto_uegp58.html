@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instituto Superior Almafuerte U.E.G.P N°58 — Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#08152a;--navy2:#0d1f3e;--navy3:#152d58;
+  --blue:#1a5fb4;--blue2:#2d7dd2;--blue3:#5ba3f5;
+  --accent:#f5c542;
+  --text:#eef3ff;--text2:#7a9cc5;--text3:#3d608f;
+  --border:rgba(45,125,210,0.18);--border2:rgba(45,125,210,0.08);
+  --green:#1fd68a;--red:#ff4d5e;--amber:#f59e0b;
+  --card:rgba(13,31,62,0.9);
+  --font:'DM Sans',sans-serif;--radius:12px;
+}
+html,body{background:var(--navy);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:400px;background:radial-gradient(ellipse at 15% -10%,rgba(26,95,180,0.28) 0%,transparent 55%),radial-gradient(ellipse at 85% -5%,rgba(45,125,210,0.15) 0%,transparent 50%);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--navy)}::-webkit-scrollbar-thumb{background:var(--navy3);border-radius:4px}
+
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;z-index:1}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:340px;text-align:center;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,0.5)}
+.login-title{font-size:21px;font-weight:600;color:#fff;letter-spacing:-.3px;margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:1.8rem}
+.login-inp{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(8,21,42,0.8);color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color .2s;margin-bottom:8px}
+.login-inp:focus{border-color:var(--blue2)}
+.login-err{font-size:12px;color:var(--red);min-height:18px;margin-bottom:8px}
+.login-btn{width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer;transition:opacity .2s}
+.login-btn:hover{opacity:.88}
+
+#app{display:none;position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:2rem;flex-wrap:wrap}
+.topbar-title{font-size:18px;font-weight:600;color:#fff;letter-spacing:-.3px}
+.topbar-sub{font-size:11px;color:var(--text2)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.sync-dot{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(31,214,138,0.12);color:var(--green);border:1px solid rgba(31,214,138,0.25)}
+
+.nav{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:5px;width:fit-content;flex-wrap:wrap}
+.nav-btn{padding:7px 18px;border:none;border-radius:10px;background:transparent;color:var(--text2);font-size:13px;font-family:var(--font);cursor:pointer;transition:all .2s}
+.nav-btn.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-weight:500;box-shadow:0 4px 16px rgba(26,95,180,0.35)}
+.nav-btn:hover:not(.active){background:rgba(45,125,210,0.12);color:var(--text)}
+
+.section{display:none}.section.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.2rem;backdrop-filter:blur(10px)}
+.card-title{font-size:15px;font-weight:500;margin-bottom:1.2rem;color:#fff}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.4rem}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;position:relative;overflow:hidden;transition:transform .2s}
+.stat:hover{transform:translateY(-2px)}
+.stat-accent{position:absolute;bottom:0;left:0;right:0;height:2px}
+.stat-ico{font-size:20px;margin-bottom:6px}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:22px;font-weight:600;letter-spacing:-.5px}
+
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:1.4rem}
+
+.form-grid{display:grid;gap:12px;margin-bottom:14px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:600px){.g3,.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}}
+label{font-size:11px;color:var(--text2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+input,select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:rgba(8,21,42,0.7);color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--blue2)}
+input[readonly]{background:rgba(8,21,42,0.4);color:var(--text2)}
+select option{background:#0d1f3e}
+
+.btn{padding:8px 18px;border-radius:9px;border:1px solid var(--border);background:rgba(45,125,210,0.08);color:var(--text);font-size:13px;font-family:var(--font);cursor:pointer;transition:all .18s}
+.btn:hover{background:rgba(45,125,210,0.18)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:transparent;color:#fff;font-weight:500}
+.btn-primary:hover{opacity:.88;background:linear-gradient(135deg,var(--blue),var(--blue2))}
+.btn-danger{background:rgba(255,77,94,0.1);border-color:rgba(255,77,94,0.3);color:var(--red)}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:rgba(45,125,210,0.06)}
+th{padding:9px 12px;text-align:left;font-weight:500;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(45,125,210,0.05)}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-ok{background:rgba(31,214,138,0.12);color:var(--green);border:1px solid rgba(31,214,138,0.25)}
+.badge-late{background:rgba(255,77,94,0.12);color:var(--red);border:1px solid rgba(255,77,94,0.25)}
+.badge-recargo{background:rgba(245,158,11,0.12);color:var(--amber)}
+.badge-ef{background:rgba(31,214,138,0.1);color:var(--green)}
+.badge-tr{background:rgba(91,163,245,0.12);color:var(--blue3)}
+.badge-carrera{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(45,125,210,0.15);color:var(--blue3);border:1px solid rgba(45,125,210,0.2)}
+.badge-año{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(245,197,66,0.12);color:var(--accent);border:1px solid rgba(245,197,66,0.2)}
+
+.search-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.search-row input,.search-row select{max-width:220px}
+
+.cuotas-grid{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px;margin-top:8px}
+.cuota-box{aspect-ratio:1;border-radius:5px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;padding:2px;text-align:center;transition:transform .15s;cursor:default}
+.cuota-box:hover{transform:scale(1.1)}
+.cuota-box.pagada{background:rgba(31,214,138,0.15);border-color:rgba(31,214,138,0.3);color:var(--green)}
+.cuota-box.pendiente{background:rgba(8,21,42,0.5);color:var(--text3)}
+.cuota-box.vencida{background:rgba(255,77,94,0.1);border-color:rgba(255,77,94,0.25);color:var(--red)}
+
+.recargo-banner{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:9px;padding:9px 14px;font-size:12px;color:var(--amber);margin-bottom:14px;display:none}
+.total-box{background:rgba(45,125,210,0.08);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;gap:2rem;align-items:center}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:18px;padding:1.8rem;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,0.6)}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.2rem}
+.modal-title{font-size:17px;font-weight:500;color:#fff}
+.modal-sub{font-size:12px;color:var(--text2);margin-top:3px}
+
+.comp-wrap{font-family:Arial,sans-serif;color:#111;background:#fff}
+.comp-header{border-bottom:3px solid #1a3a6b;padding-bottom:14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.comp-header-left{display:flex;align-items:center;gap:14px}
+.comp-inst{font-size:19px;font-weight:700;color:#1a3a6b;letter-spacing:.5px}
+.comp-inst-sub,.comp-resolucion{font-size:10px;color:#555;margin-top:2px}
+.comp-num{text-align:right;flex-shrink:0}
+.comp-num-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px}
+.comp-num-val{font-size:22px;font-weight:700;color:#1a3a6b}
+.comp-title-bar{background:#1a3a6b;color:#fff;text-align:center;padding:7px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-radius:3px}
+.comp-section{margin-bottom:14px}
+.comp-section-title{font-size:10px;font-weight:700;color:#1a3a6b;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #dde3f0;padding-bottom:4px;margin-bottom:8px}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.comp-field-label{font-size:10px;color:#888;text-transform:uppercase}
+.comp-field-val{font-size:13px;font-weight:600;color:#111;border-bottom:1px solid #eee;padding-bottom:2px;margin-top:1px}
+.comp-monto-box{background:#f0f4fb;border:2px solid #1a3a6b;border-radius:6px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin:14px 0}
+.comp-monto-label{font-size:12px;color:#1a3a6b;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.comp-monto-val{font-size:26px;font-weight:700;color:#1a3a6b}
+.comp-forma-tag{display:inline-block;background:#1a3a6b;color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:8px}
+.comp-clausulas{background:#fff8f0;border:1px solid #f0c070;border-radius:4px;padding:10px 12px;margin-top:14px}
+.comp-clausulas-title{font-size:10px;font-weight:700;color:#b06000;text-transform:uppercase;margin-bottom:6px}
+.comp-clausulas p{font-size:10px;color:#444;line-height:1.65;margin-bottom:4px}
+.comp-footer{border-top:1px dashed #ccc;margin-top:16px;padding-top:10px;display:flex;justify-content:space-between;align-items:flex-end}
+.comp-firma{text-align:center}
+.comp-firma-line{border-top:1px solid #333;width:180px;margin:32px auto 4px}
+.comp-firma-label{font-size:10px;color:#555}
+.comp-sello{font-size:10px;color:#999;text-align:right;line-height:1.6}
+
+.msg{font-size:12px;min-height:18px;margin-top:8px}
+.msg.ok{color:var(--green)}.msg.err{color:var(--red)}
+
+.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px;color:var(--text2);font-size:14px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue2);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media print{
+  body *{visibility:hidden!important}
+  #print-area,#print-area *{visibility:visible!important}
+  #print-area{position:fixed;left:0;top:0;width:100%;background:white;padding:24px}
+  .no-print{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading">
+  <div class="spinner"></div>
+  <div>Conectando con la nube...</div>
+</div>
+
+<div id="login-screen" style="display:none">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div style="width:72px;height:72px;background:linear-gradient(135deg,#1a3a6b,#2d7dd2);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:28px">🎓</div>
+      <div class="login-title">Instituto Superior Almafuerte</div>
+      <div class="login-sub">U.E.G.P N°58 — Sistema de gestión de cuotas</div>
+      <input type="password" id="inp-pass" class="login-inp" placeholder="Contraseña" onkeydown="if(event.key==='Enter')login()">
+      <div id="pass-error" class="login-err"></div>
+      <button class="login-btn" onclick="login()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div style="width:44px;height:44px;background:linear-gradient(135deg,#1a3a6b,#2d7dd2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎓</div>
+    <div>
+      <div class="topbar-title">Instituto Superior Almafuerte U.E.G.P N°58</div>
+      <div class="topbar-sub">U.E.G.P N°58</div>
+    </div>
+    <div class="topbar-right">
+      <span id="topbar-usuario" style="font-size:12px;color:var(--text2)"></span>
+      <span class="sync-dot">● En línea</span>
+      <button class="btn btn-sm" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn admin-only" onclick="showTab('dashboard',this)">📊 Resumen</button>
+    <button class="nav-btn" onclick="showTab('alumnos',this)">👥 Alumnos</button>
+    <button class="nav-btn" onclick="showTab('cobros',this)">💰 Cobros</button>
+    <button class="nav-btn" onclick="showTab('morosos',this)">⚠️ Morosos</button>
+    <button class="nav-btn admin-only" onclick="showTab('planillas',this)">📋 Planillas</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="section active">
+    <div class="stats-row" id="stats-row"></div>
+    <div class="charts-row">
+      <div class="card"><div class="card-title">Cobros por mes</div><canvas id="chart-cobros" height="160"></canvas></div>
+      <div class="card"><div class="card-title">Alumnos por carrera</div><canvas id="chart-carreras" height="160"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Estado general</div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Alumno</th><th>Carrera</th><th>Año</th><th>Cuotas pagas</th><th>Adeuda</th><th>Monto</th><th>Estado</th></tr></thead>
+        <tbody id="tbody-dashboard"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALUMNOS -->
+  <div id="tab-alumnos" class="section">
+    <div class="card">
+      <div class="card-title">➕ Agregar alumno</div>
+      <div class="form-grid g3">
+        <div><label>Nombre y apellido</label><input id="inp-nombre" placeholder="María González"></div>
+        <div><label>DNI</label><input id="inp-dni" placeholder="40123456"></div>
+        <div><label>Teléfono / Celular</label><input id="inp-tel" placeholder="3624 000000"></div>
+        <div><label>WhatsApp (con código país)</label><input id="inp-cel" placeholder="5493624000000"></div>
+      </div>
+      <div class="form-grid g3">
+        <div><label>Carrera</label>
+          <select id="inp-carrera">
+            <option value="Radiología">Radiología</option>
+            <option value="Auxiliar Docente">Auxiliar Docente</option>
+          </select>
+        </div>
+        <div><label>Año que cursa</label>
+          <select id="inp-año"><option value="1">1° año</option><option value="2">2° año</option><option value="3">3° año</option></select>
+        </div>
+        <div><label>Año de inicio</label><input id="inp-inicio" type="number" placeholder="2025" min="2020" max="2030"></div>
+      </div>
+      <button class="btn btn-primary" onclick="agregarAlumno()">Agregar alumno</button>
+      <div id="msg-alumno" class="msg"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Alumnos registrados <span id="count-alumnos" style="font-size:12px;color:var(--text2);font-weight:400"></span></div>
+      <div class="search-row">
+        <input id="inp-buscar" placeholder="Buscar nombre o DNI..." oninput="renderAlumnos()" style="max-width:260px">
+        <select id="fil-carrera" onchange="renderAlumnos()" style="max-width:220px">
+          <option value="">Todas las carreras</option>
+          <option value="Radiología">Radiología</option>
+          <option value="Auxiliar Docente">Auxiliar Docente</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Nombre</th><th>DNI</th><th>Teléfono</th><th>WhatsApp</th><th>Carrera</th><th>Año</th><th>Cuotas</th><th></th></tr></thead>
+        <tbody id="tbody-alumnos"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- COBROS -->
+  <div id="tab-cobros" class="section">
+    <div class="card">
+      <div class="card-title">💳 Registrar pago</div>
+      <div id="recargo-banner" class="recargo-banner">⚠️ Hoy es después del día 15 — cuota con recargo: $75.000</div>
+      <div class="form-grid g2">
+        <div><label>Alumno</label><select id="sel-alumno" onchange="autoCompletarCobro()"><option value="">— Seleccionar —</option></select></div>
+        <div><label>Carrera / Año</label><input id="lbl-carrera" readonly></div>
+      </div>
+      <div class="form-grid g4">
+        <div><label>Año de cursado</label><select id="sel-año-cobro"><option value="1">1° año</option><option value="2">2° año</option><option value="3">3° año</option></select></div>
+        <div><label>N° cuota</label>
+          <select id="sel-cuota">
+            <option value="0">Matrícula</option>
+            <option value="1">Cuota 1 (Mar)</option><option value="2">Cuota 2 (Abr)</option>
+            <option value="3">Cuota 3 (May)</option><option value="4">Cuota 4 (Jun)</option>
+            <option value="5">Cuota 5 (Jul)</option><option value="6">Cuota 6 (Ago)</option>
+            <option value="7">Cuota 7 (Sep)</option><option value="8">Cuota 8 (Oct)</option>
+            <option value="9">Cuota 9 (Nov)</option><option value="10">Cuota 10 (Dic)</option>
+          </select>
+        </div>
+        <div><label>Forma de pago</label><select id="sel-forma"><option value="Efectivo">Efectivo</option><option value="Transferencia">Transferencia</option></select></div>
+        <div><label>Fecha de pago</label><input id="inp-fecha" type="date"></div>
+      </div>
+      <div class="form-grid g2">
+        <div><label>Monto base ($)</label><input id="inp-monto" type="number" value="70000" oninput="calcTotal()"></div>
+        <div><label>Recargo (0 si no aplica)</label><input id="inp-recargo" type="number" value="0" oninput="calcTotal()"></div>
+      </div>
+      <div class="total-box">
+        <span style="font-size:13px;color:var(--text2)">Total a cobrar:</span>
+        <span id="lbl-total" style="font-size:22px;font-weight:600;color:var(--blue3)">$70.000</span>
+      </div>
+      <button class="btn btn-primary" onclick="registrarCobro()">Confirmar y generar comprobante</button>
+      <div id="msg-cobro" class="msg"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Últimos pagos</div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Alumno</th><th>Carrera/Año</th><th>Cuota</th><th>Forma</th><th>Fecha</th><th>Monto</th><th>Recargo</th><th>Total</th><th></th></tr></thead>
+        <tbody id="tbody-cobros"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOROSOS -->
+  <div id="tab-morosos" class="section">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin-bottom:0">⚠️ Alumnos con cuotas atrasadas</div>
+        <button class="btn" onclick="enviarWATodos()" style="background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.3);color:#25d366;font-size:12px">📲 Avisar a todos por WhatsApp</button>
+      </div>
+      <div class="search-row">
+        <select id="fil-morosos-carrera" onchange="renderMorosos()" style="max-width:240px">
+          <option value="">Todas las carreras</option>
+          <option value="Radiología">Radiología</option>
+          <option value="Auxiliar Docente">Auxiliar Docente</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Alumno</th><th>DNI</th><th>Teléfono</th><th>Carrera</th><th>Año</th><th>Adeuda</th><th>Monto c/mora</th><th></th></tr></thead>
+        <tbody id="tbody-morosos"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- PLANILLAS -->
+  <div id="tab-planillas" class="section">
+    <div class="card">
+      <div class="card-title">📋 Planillas de pago — Estado anual por carrera y año</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+        <select id="plan-carrera" onchange="renderPlanilla()" style="min-width:220px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(8,21,42,0.7);color:var(--text);font-size:13px;font-family:var(--font)">
+          <option value="Radiología">Radiología</option>
+          <option value="Auxiliar Docente">Auxiliar Docente</option>
+        </select>
+        <select id="plan-anio" onchange="renderPlanilla()" style="min-width:120px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(8,21,42,0.7);color:var(--text);font-size:13px;font-family:var(--font)">
+          <option value="1">1° año</option>
+          <option value="2">2° año</option>
+          <option value="3">3° año</option>
+        </select>
+
+        <select id="plan-vista" onchange="renderPlanilla()" style="min-width:180px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(8,21,42,0.7);color:var(--text);font-size:13px;font-family:var(--font)">
+          <option value="mes">📅 Por mes (separado)</option>
+          <option value="completo">📋 Historial completo</option>
+        </select>
+        <button onclick="imprimirPlanilla()" style="padding:9px 18px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)">🖨️ Imprimir planilla</button>
+      </div>
+      <div id="planilla-container"></div>
+    </div>
+  </div>
+
+<!-- MODAL DETALLE -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="modal-titulo"></div><div class="modal-sub" id="modal-subtitulo"></div></div>
+      <button class="btn btn-sm" onclick="document.getElementById('modal-bg').classList.remove('open')">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- MODAL COMPROBANTE -->
+<div class="modal-bg" id="comprobante-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:700px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem" class="no-print">
+      <span style="font-size:15px;font-weight:500">Comprobante de pago</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="window.print()">Imprimir / PDF</button>
+        <button class="btn btn-sm" onclick="document.getElementById('comprobante-modal').classList.remove('open')">✕</button>
+      </div>
+    </div>
+    <div id="print-area"><div class="comp-wrap" id="comp-contenido"></div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ════════════════════════════════════
+// FIREBASE CONFIG — REEMPLAZAR
+// ════════════════════════════════════
+const FB_CONFIG = {
+  apiKey: "AIzaSyDu58MvSN8h0Hklb-RpkkBf9QvF5mqii2c",
+  authDomain: "instituto-almafuerte.firebaseapp.com",
+  projectId: "instituto-uegp58",
+  storageBucket: "instituto-almafuerte.firebasestorage.app",
+  messagingSenderId: "612619707603",
+  appId: "1:612619707603:web:798ae3fd9f0ca441b32026"
+};
+
+let db = null, fbReady = false;
+try {
+  const fbApp = initializeApp(FB_CONFIG);
+  db = getFirestore(fbApp);
+  fbReady = true;
+} catch(e) {}
+
+async function fbGet(coleccion, fallback) {
+  try {
+    if(fbReady) {
+      const snap = await getDoc(doc(db, "uegp58", coleccion));
+      if(snap.exists()) return JSON.parse(snap.data().payload);
+    }
+  } catch(e) {}
+  try { const r = localStorage.getItem('uegp58_'+coleccion); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+}
+async function fbSet(coleccion, data) {
+  const payload = JSON.stringify(data);
+  try { if(fbReady) await setDoc(doc(db, "uegp58", coleccion), { payload }); } catch(e) {}
+  try { localStorage.setItem('uegp58_'+coleccion, payload); } catch(e) {}
+}
+
+// ════════════════════════════════════
+// CONSTANTES
+// ════════════════════════════════════
+const USUARIOS = {
+  'Danisa1980': { nombre: 'Danisa', rol: 'admin' },
+  'Alexis064':  { nombre: 'Alexis', rol: 'secretario' },
+  'Ludmi2026':  { nombre: 'Ludmila', rol: 'secretario' }
+};
+let usuarioActual = null;
+const MONTO_BASE = 70000;
+const RECARGO_STD = 5000;
+const CUOTAS_POR_AÑO = 11;
+const MESES = ['','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const RESOLUCIONES = { 'Radiología':'___________', 'Auxiliar Docente':'___________' };
+
+let alumnos = [], pagos = [], nroComprobante = 1;
+let chartCobros = null, chartCarreras = null;
+
+async function cargarDatos() {
+  alumnos = (await fbGet('alumnos')) || [];
+  pagos = (await fbGet('pagos')) || [];
+  const cfg = await fbGet('config');
+  nroComprobante = cfg?.nro || 1;
+}
+const guardarAlumnos = () => fbSet('alumnos', alumnos);
+const guardarPagos   = () => fbSet('pagos', pagos);
+const guardarNro     = () => fbSet('config', { nro: nroComprobante });
+
+// ════════════════════════════════════
+// AUTH
+// ════════════════════════════════════
+async function login() {
+  const v = document.getElementById('inp-pass').value;
+  const err = document.getElementById('pass-error');
+  const usuario = USUARIOS[v];
+  if(!usuario) { err.textContent = 'Contraseña incorrecta.'; return; }
+  err.textContent = 'Cargando...';
+  usuarioActual = usuario;
+  await cargarDatos();
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('topbar-usuario').textContent = '👤 ' + usuario.nombre;
+  // Mostrar/ocultar tabs según rol
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = usuario.rol === 'admin' ? '' : 'none';
+  });
+  if(usuario.rol === 'admin') {
+    renderDashboard();
+  } else {
+    // Secretarios arrancan en Alumnos
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-alumnos').classList.add('active');
+    const btnAlumnos = document.querySelector('.nav-btn:not(.admin-only)');
+    if(btnAlumnos) btnAlumnos.classList.add('active');
+    renderAlumnos();
+  }
+}
+function logout() {
+  usuarioActual = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('inp-pass').value = '';
+  document.getElementById('pass-error').textContent = '';
+}
+window.login = login; window.logout = logout;
+
+// ════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════
+const fmt = n => '$' + (n||0).toLocaleString('es-AR');
+const nombreCuota = i => i===0 ? 'Matrícula' : 'Cuota N° '+i+' ('+MESES[i]+')';
+const nombreCuotaCorto = i => i===0 ? 'Mat.' : 'C'+i;
+const getPagosAlumno = id => pagos.filter(p => p.alumnoId===id);
+const cuotaPagada = (id,año,c) => pagos.some(p => p.alumnoId===id && p.año==año && p.cuota==c);
+function calcDeuda(id, añoCursando) {
+  let d = [];
+  for(let a=1; a<=añoCursando; a++)
+    for(let c=0; c<CUOTAS_POR_AÑO; c++)
+      if(!cuotaPagada(id,a,c)) d.push({año:a,cuota:c});
+  return d;
+}
+function setMsg(id, texto, ok) {
+  const el = document.getElementById(id);
+  el.className = 'msg '+(ok?'ok':'err');
+  el.textContent = texto;
+  if(ok) setTimeout(()=>el.textContent='',4000);
+}
+const esPostDia15 = () => new Date().getDate()>15;
+const getCuotaActual = () => { const m=new Date().getMonth()+1; if(m<3)return 0; if(m>12)return 10; return m-2; };
+function calcTotal() {
+  const m = parseInt(document.getElementById('inp-monto').value)||0;
+  const r = parseInt(document.getElementById('inp-recargo').value)||0;
+  document.getElementById('lbl-total').textContent = fmt(m+r);
+}
+window.calcTotal = calcTotal;
+
+function showTab(t, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(t==='dashboard') renderDashboard();
+  if(t==='alumnos') renderAlumnos();
+  if(t==='cobros') initCobros();
+  if(t==='morosos') renderMorosos();
+  if(t==='planillas') renderPlanilla();
+}
+window.showTab = showTab;
+
+// ════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════
+function renderDashboard() {
+  const cobrado = pagos.reduce((s,p)=>s+(p.total||0),0);
+  let adeudado=0, morososCount=0;
+  alumnos.forEach(a=>{ const d=calcDeuda(a.id,a.año).length; adeudado+=d*MONTO_BASE; if(d>0)morososCount++; });
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat"><div class="stat-accent" style="background:linear-gradient(90deg,var(--blue),var(--blue2))"></div><div class="stat-ico">👥</div><div class="stat-label">Alumnos</div><div class="stat-val" style="color:var(--blue3)">${alumnos.length}</div></div>
+    <div class="stat"><div class="stat-accent" style="background:linear-gradient(90deg,var(--green),#15b87a)"></div><div class="stat-ico">✅</div><div class="stat-label">Total cobrado</div><div class="stat-val" style="color:var(--green)">${fmt(cobrado)}</div></div>
+    <div class="stat"><div class="stat-accent" style="background:linear-gradient(90deg,var(--red),#cc2233)"></div><div class="stat-ico">📋</div><div class="stat-label">Total adeudado</div><div class="stat-val" style="color:var(--red)">${fmt(adeudado)}</div></div>
+    <div class="stat"><div class="stat-accent" style="background:linear-gradient(90deg,var(--amber),#d97706)"></div><div class="stat-ico">⚠️</div><div class="stat-label">Con deuda</div><div class="stat-val" style="color:var(--amber)">${morososCount}</div></div>`;
+
+  const tbody = document.getElementById('tbody-dashboard');
+  tbody.innerHTML = !alumnos.length
+    ? '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text2)">Sin alumnos cargados</td></tr>'
+    : alumnos.map(a => {
+        const pagas = getPagosAlumno(a.id).length;
+        const deuda = calcDeuda(a.id,a.año);
+        return `<tr>
+          <td style="font-weight:500">${a.nombre}</td>
+          <td><span class="badge-carrera">${a.carrera}</span></td>
+          <td><span class="badge-año">${a.año}° año</span></td>
+          <td>${pagas}/${a.año*CUOTAS_POR_AÑO}</td>
+          <td>${deuda.length}</td>
+          <td>${deuda.length>0?'<span style="color:var(--red);font-weight:500">'+fmt(deuda.length*MONTO_BASE)+'</span>':'—'}</td>
+          <td>${deuda.length===0?'<span class="badge badge-ok">Al día</span>':'<span class="badge badge-late">'+deuda.length+' atrasada'+(deuda.length>1?'s':'')+'</span>'}</td>
+        </tr>`;
+      }).join('');
+
+  // Charts
+  const meses = {};
+  pagos.forEach(p => { if(!p.fecha)return; const m=p.fecha.substring(0,7); meses[m]=(meses[m]||0)+(p.total||0); });
+  const sortedM = Object.keys(meses).sort().slice(-6);
+  const cvEl = document.getElementById('chart-cobros');
+  if(chartCobros) chartCobros.destroy();
+  chartCobros = new Chart(cvEl, {
+    type:'bar',
+    data:{
+      labels: sortedM.map(m=>{ const[y,mo]=m.split('-'); return ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(mo)]+' '+y.slice(2); }),
+      datasets:[{ data:sortedM.map(m=>meses[m]), backgroundColor:'rgba(45,125,210,0.6)', borderColor:'rgba(91,163,245,0.8)', borderWidth:1, borderRadius:6 }]
+    },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{
+      x:{ticks:{color:'#7a9cc5',font:{size:10}},grid:{color:'rgba(45,125,210,0.08)'}},
+      y:{ticks:{color:'#7a9cc5',font:{size:10},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'rgba(45,125,210,0.08)'}}
+    }}
+  });
+
+  const carreraCount = {};
+  alumnos.forEach(a=>{ carreraCount[a.carrera]=(carreraCount[a.carrera]||0)+1; });
+  const ccEl = document.getElementById('chart-carreras');
+  if(chartCarreras) chartCarreras.destroy();
+  chartCarreras = new Chart(ccEl, {
+    type:'doughnut',
+    data:{
+      labels:Object.keys(carreraCount),
+      datasets:[{ data:Object.values(carreraCount), backgroundColor:['#2d7dd2','#f5c542','#1fd68a'], borderWidth:0, hoverOffset:6 }]
+    },
+    options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#7a9cc5',font:{size:11},padding:10,boxWidth:12}}}, cutout:'65%' }
+  });
+}
+
+// ════════════════════════════════════
+// ALUMNOS
+// ════════════════════════════════════
+async function agregarAlumno() {
+  const nombre=document.getElementById('inp-nombre').value.trim();
+  const dni=document.getElementById('inp-dni').value.trim();
+  const tel=document.getElementById('inp-tel').value.trim();
+  const carrera=document.getElementById('inp-carrera').value;
+  const año=parseInt(document.getElementById('inp-año').value);
+  const inicio=document.getElementById('inp-inicio').value.trim();
+  if(!nombre||!dni){setMsg('msg-alumno','Nombre y DNI son obligatorios.',false);return;}
+  if(alumnos.some(a=>a.dni===dni)){setMsg('msg-alumno','Ya existe un alumno con ese DNI.',false);return;}
+  const cel = document.getElementById('inp-cel').value.trim();
+  alumnos.push({id:Date.now().toString(),nombre,dni,tel,cel,carrera,año,inicio});
+  await guardarAlumnos();
+  ['inp-nombre','inp-dni','inp-tel','inp-cel','inp-inicio'].forEach(id=>document.getElementById(id).value='');
+  setMsg('msg-alumno','✓ Alumno agregado correctamente.',true);
+  renderAlumnos();
+}
+window.agregarAlumno = agregarAlumno;
+
+function renderAlumnos() {
+  const buscar=(document.getElementById('inp-buscar')?.value||'').toLowerCase();
+  const filCar=document.getElementById('fil-carrera')?.value||'';
+  const lista=alumnos.filter(a=>(a.nombre.toLowerCase().includes(buscar)||a.dni.includes(buscar))&&(!filCar||a.carrera===filCar));
+  document.getElementById('count-alumnos').textContent=lista.length+' alumno(s)';
+  const tbody=document.getElementById('tbody-alumnos');
+  if(!lista.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text2)">Sin alumnos</td></tr>';return;}
+  tbody.innerHTML=lista.map(a=>{
+    const pagas=getPagosAlumno(a.id).length;
+    return`<tr>
+      <td style="font-weight:500">${a.nombre}</td><td>${a.dni}</td><td>${a.tel||'—'}</td><td>${a.cel?`<a href="https://wa.me/${a.cel}" target="_blank" style="color:var(--green);font-size:12px">📱 ${a.cel}</a>`:'—'}</td>
+      <td><span class="badge-carrera">${a.carrera}</span></td>
+      <td><span class="badge-año">${a.año}° año</span></td>
+      <td><button class="btn btn-sm" onclick="verDetalle('${a.id}')">Ver (${pagas}/${a.año*CUOTAS_POR_AÑO})</button></td>
+      <td>${usuarioActual?.rol==='admin'?`<button class="btn btn-danger btn-sm" onclick="eliminarAlumno('${a.id}')">Eliminar</button>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+window.renderAlumnos = renderAlumnos;
+
+async function eliminarAlumno(id) {
+  if(usuarioActual?.rol !== 'admin') { alert('Solo la administradora puede eliminar alumnos.'); return; }
+  if(!confirm('¿Eliminar este alumno y todos sus pagos?'))return;
+  alumnos=alumnos.filter(a=>a.id!==id);
+  pagos=pagos.filter(p=>p.alumnoId!==id);
+  await guardarAlumnos();await guardarPagos();
+  renderAlumnos();
+}
+window.eliminarAlumno = eliminarAlumno;
+
+function verDetalle(id) {
+  const a=alumnos.find(x=>x.id===id);if(!a)return;
+  document.getElementById('modal-titulo').textContent=a.nombre;
+  document.getElementById('modal-subtitulo').textContent=a.carrera+' · '+a.año+'° año · DNI '+a.dni;
+  let html='';
+  for(let año=1;año<=3;año++){
+    const activo=año<=a.año;
+    html+=`<div style="margin-bottom:1rem"><div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">${año}° año ${!activo?'<span style="opacity:.4;font-size:10px">(pendiente)</span>':''}</div><div class="cuotas-grid">`;
+    for(let c=0;c<CUOTAS_POR_AÑO;c++){
+      const pago=pagos.find(p=>p.alumnoId===id&&p.año==año&&p.cuota==c);
+      const clase=!activo?'pendiente':pago?'pagada':'vencida';
+      const forma=pago?(pago.forma==='Efectivo'?'E':'T'):'';
+      html+=`<div class="cuota-box ${clase}" title="${nombreCuota(c)}${pago?' — '+pago.forma+' '+fmt(pago.total):activo?' — Sin pagar':''}">${nombreCuotaCorto(c)}<br>${pago?'✓'+forma:activo?'✗':''}</div>`;
+    }
+    html+=`</div></div>`;
+  }
+  const deuda=calcDeuda(id,a.año);
+  const totalPagado=getPagosAlumno(id).reduce((s,p)=>s+(p.total||0),0);
+  html+=`<hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+      <div><div style="font-size:11px;color:var(--text2)">Cuotas pagas</div><div style="font-size:20px;font-weight:600;color:var(--green)">${getPagosAlumno(id).length}</div></div>
+      <div><div style="font-size:11px;color:var(--text2)">Total cobrado</div><div style="font-size:20px;font-weight:600;color:var(--green)">${fmt(totalPagado)}</div></div>
+      <div><div style="font-size:11px;color:var(--text2)">Adeuda</div><div style="font-size:20px;font-weight:600;color:var(--red)">${deuda.length} cuota${deuda.length!==1?'s':''}</div></div>
+      <div><div style="font-size:11px;color:var(--text2)">Monto adeudado</div><div style="font-size:20px;font-weight:600;color:var(--red)">${fmt(deuda.length*MONTO_BASE)}</div></div>
+    </div>`;
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('modal-bg').classList.add('open');
+}
+window.verDetalle = verDetalle;
+
+// ════════════════════════════════════
+// COBROS
+// ════════════════════════════════════
+function initCobros() {
+  document.getElementById('sel-alumno').innerHTML='<option value="">— Seleccionar —</option>'+
+    alumnos.map(a=>`<option value="${a.id}">${a.nombre} (${a.dni})</option>`).join('');
+  document.getElementById('inp-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('sel-cuota').value=getCuotaActual();
+  const post15=esPostDia15();
+  document.getElementById('recargo-banner').style.display=post15?'block':'none';
+  document.getElementById('inp-recargo').value=post15?RECARGO_STD:0;
+  calcTotal();
+  renderUltimosCobros();
+}
+function autoCompletarCobro() {
+  const id=document.getElementById('sel-alumno').value;
+  const a=alumnos.find(x=>x.id===id);
+  document.getElementById('lbl-carrera').value=a?a.carrera+' · '+a.año+'° año':'';
+  if(a)document.getElementById('sel-año-cobro').value=a.año;
+}
+window.autoCompletarCobro = autoCompletarCobro;
+
+async function registrarCobro() {
+  const alumnoId=document.getElementById('sel-alumno').value;
+  const año=parseInt(document.getElementById('sel-año-cobro').value);
+  const cuota=parseInt(document.getElementById('sel-cuota').value);
+  const forma=document.getElementById('sel-forma').value;
+  const fecha=document.getElementById('inp-fecha').value;
+  const monto=parseInt(document.getElementById('inp-monto').value)||0;
+  const recargo=parseInt(document.getElementById('inp-recargo').value)||0;
+  const total=monto+recargo;
+  if(!alumnoId){setMsg('msg-cobro','Seleccioná un alumno.',false);return;}
+  if(!fecha){setMsg('msg-cobro','Ingresá la fecha.',false);return;}
+  if(cuotaPagada(alumnoId,año,cuota)){setMsg('msg-cobro','Esta cuota ya está registrada.',false);return;}
+  const alumno=alumnos.find(a=>a.id===alumnoId);
+  const nro=nroComprobante;
+  const pago={id:Date.now().toString(),alumnoId,año,cuota,forma,fecha,monto,recargo,total,nombre:alumno.nombre,carrera:alumno.carrera,dni:alumno.dni,nroComprobante:nro};
+  pagos.unshift(pago);
+  nroComprobante++;
+  await guardarPagos();await guardarNro();
+  setMsg('msg-cobro','✓ Pago registrado. Generando comprobante...',true);
+  renderUltimosCobros();
+  setTimeout(()=>mostrarComprobante(pago),400);
+}
+window.registrarCobro = registrarCobro;
+
+function renderUltimosCobros() {
+  const tbody=document.getElementById('tbody-cobros');
+  if(!pagos.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text2)">Sin pagos registrados</td></tr>';return;}
+  tbody.innerHTML=pagos.slice(0,25).map(p=>`<tr>
+    <td style="font-weight:500">${p.nombre}</td>
+    <td><span class="badge-carrera" style="font-size:10px">${p.carrera||''} ${p.año}°</span></td>
+    <td>${nombreCuota(p.cuota)}</td>
+    <td><span class="badge ${p.forma==='Efectivo'?'badge-ef':'badge-tr'}">${p.forma}</span></td>
+    <td>${p.fecha?p.fecha.split('-').reverse().join('/'):'—'}</td>
+    <td>${fmt(p.monto||0)}</td>
+    <td>${p.recargo?'<span class="badge badge-recargo">+'+fmt(p.recargo)+'</span>':'—'}</td>
+    <td style="font-weight:500">${fmt(p.total||0)}</td>
+    <td style="display:flex;gap:4px">
+      <button class="btn btn-sm" onclick="mostrarComprobante(window._pagos.find(x=>x.id==='${p.id}'))">Rep.</button>
+      ${usuarioActual?.rol==='admin'?`<button class="btn btn-danger btn-sm" onclick="eliminarPago('${p.id}')">✕</button>`:''}
+    </td>
+  </tr>`).join('');
+  window._pagos = pagos;
+}
+async function eliminarPago(id) {
+  if(usuarioActual?.rol !== 'admin') { alert('Solo la administradora puede eliminar pagos.'); return; }
+  if(!confirm('¿Eliminar este pago?'))return;
+  pagos=pagos.filter(p=>p.id!==id);
+  await guardarPagos();
+  renderUltimosCobros();
+}
+window.eliminarPago = eliminarPago;
+
+// ════════════════════════════════════
+// MOROSOS
+// ════════════════════════════════════
+function renderMorosos() {
+  const fil=document.getElementById('fil-morosos-carrera')?.value||'';
+  const morosos=alumnos.filter(a=>calcDeuda(a.id,a.año).length>0&&(!fil||a.carrera===fil));
+  const tbody=document.getElementById('tbody-morosos');
+  if(!morosos.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text2)">🎉 No hay alumnos con deuda</td></tr>';return;}
+  tbody.innerHTML=morosos.map(a=>{
+    const deuda=calcDeuda(a.id,a.año);
+    const montoMoroso = deuda.length * (MONTO_BASE + RECARGO_STD);
+    const msgWA = encodeURIComponent(`Estimado/a ${a.nombre}, le informamos que registra ${deuda.length} cuota${deuda.length>1?'s':''} adeudada${deuda.length>1?'s':''} en el Instituto Superior Almafuerte U.E.G.P N°58 por un total de $${montoMoroso.toLocaleString('es-AR')} (incluye recargo por mora). Le solicitamos que se acerque a regularizar su situación a la brevedad. Ante cualquier consulta, no dude en comunicarse. Muchas gracias.`);
+    const waLink = a.cel ? `https://wa.me/${a.cel}?text=${msgWA}` : null;
+    return`<tr>
+      <td style="font-weight:500">${a.nombre}</td><td>${a.dni}</td><td>${a.tel||'—'}</td>
+      <td><span class="badge-carrera">${a.carrera}</span></td>
+      <td><span class="badge-año">${a.año}° año</span></td>
+      <td><span class="badge badge-late">${deuda.length} cuota${deuda.length>1?'s':''}</span></td>
+      <td style="font-weight:500;color:var(--red)">$${montoMoroso.toLocaleString('es-AR')}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="verDetalle('${a.id}')">Ver detalle</button>
+        ${waLink ? `<a href="${waLink}" target="_blank" class="btn btn-sm" style="background:rgba(37,211,102,0.15);border-color:rgba(37,211,102,0.3);color:#25d366;text-decoration:none">📲 WA</a>` : '<span style="font-size:11px;color:var(--text3)">Sin WA</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+window.renderMorosos = renderMorosos;
+
+// ════════════════════════════════════
+// COMPROBANTE
+// ════════════════════════════════════
+function mostrarComprobante(pago) {
+  if(!pago)return;
+  const fechaFmt=pago.fecha?pago.fecha.split('-').reverse().join('/'):'—';
+  const nroFmt=String(pago.nroComprobante).padStart(6,'0');
+  const resolucion=RESOLUCIONES[pago.carrera]||'___________';
+  const montoLetras=numToLetras(pago.total);
+  document.getElementById('comp-contenido').innerHTML=`
+  <div class="comp-header">
+    <div class="comp-header-left">
+      <div style="width:64px;height:64px;background:#1a3a6b;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;text-align:center;padding:4px;flex-shrink:0">INST.<br>ALMA<br>FUERTE</div>
+      <div>
+        <div class="comp-inst">INSTITUTO SUPERIOR ALMAFUERTE</div>
+        <div class="comp-inst-sub">U.E.G.P N°58</div>
+        <div class="comp-resolucion">Carrera: ${pago.carrera} · ${pago.año}° año</div>
+        <div class="comp-resolucion">Res. Provincial N°: ${resolucion}</div>
+      </div>
+    </div>
+    <div class="comp-num"><div class="comp-num-label">Comprobante N°</div><div class="comp-num-val">${nroFmt}</div><div style="font-size:11px;color:#666;margin-top:4px">Fecha: ${fechaFmt}</div></div>
+  </div>
+  <div class="comp-title-bar">Recibo de pago de cuota</div>
+  <div class="comp-section">
+    <div class="comp-section-title">Datos del alumno</div>
+    <div class="comp-grid">
+      <div><div class="comp-field-label">Apellido y nombre</div><div class="comp-field-val">${pago.nombre}</div></div>
+      <div><div class="comp-field-label">DNI</div><div class="comp-field-val">${pago.dni}</div></div>
+      <div><div class="comp-field-label">Carrera</div><div class="comp-field-val">${pago.carrera}</div></div>
+      <div><div class="comp-field-label">Año de cursado</div><div class="comp-field-val">${pago.año}° año</div></div>
+    </div>
+  </div>
+  <div class="comp-section">
+    <div class="comp-section-title">Detalle del pago</div>
+    <div class="comp-grid">
+      <div><div class="comp-field-label">Concepto</div><div class="comp-field-val">${nombreCuota(pago.cuota)}</div></div>
+      <div><div class="comp-field-label">Forma de pago</div><div class="comp-field-val">${pago.forma} <span class="comp-forma-tag">${pago.forma==='Efectivo'?'EF':'TR'}</span></div></div>
+      <div><div class="comp-field-label">Monto base</div><div class="comp-field-val">${fmt(pago.monto||0)}</div></div>
+      <div><div class="comp-field-label">Recargo por mora</div><div class="comp-field-val">${pago.recargo>0?fmt(pago.recargo):'Sin recargo'}</div></div>
+    </div>
+  </div>
+  <div class="comp-monto-box">
+    <div><div class="comp-monto-label">Total abonado</div><div style="font-size:11px;color:#1a3a6b;margin-top:3px;font-style:italic">${montoLetras} pesos</div></div>
+    <div class="comp-monto-val">${fmt(pago.total)}</div>
+  </div>
+  <div class="comp-clausulas">
+    <div class="comp-clausulas-title">Condiciones de pago — Importante</div>
+    <p>1. Las cuotas deben abonarse entre los días 1 y 15 de cada mes. Pasado dicho plazo, se aplicará un recargo de $5.000 por mora.</p>
+    <p>2. El incumplimiento en el pago de <strong>dos (2) o más cuotas consecutivas o alternadas</strong> habilitará al Instituto Almafuerte a iniciar las acciones legales pertinentes para el cobro de la deuda, pudiendo ser derivada a patrocinio letrado (abogado), con los honorarios y costas correspondientes a cargo exclusivo del deudor, conforme al artículo 730 del Código Civil y Comercial de la Nación.</p>
+    <p>3. La mora en el pago de cuotas no exime al alumno de sus obligaciones académicas, ni suspende automáticamente su cursado, salvo resolución expresa de las autoridades del instituto.</p>
+    <p>4. El presente comprobante es válido únicamente como constancia del concepto aquí indicado y no implica cancelación de deudas anteriores si las hubiere.</p>
+  </div>
+  <div class="comp-footer">
+    <div class="comp-firma"><div class="comp-firma-line"></div><div class="comp-firma-label">Firma y sello autorizado</div><div class="comp-firma-label" style="margin-top:2px">Instituto Almafuerte</div></div>
+    <div class="comp-sello"><div>Generado el ${new Date().toLocaleDateString('es-AR')}</div><div style="margin-top:2px;font-weight:600">Conserve este comprobante</div></div>
+  </div>`;
+  document.getElementById('comprobante-modal').classList.add('open');
+}
+window.mostrarComprobante = mostrarComprobante;
+
+// ════════════════════════════════════
+// NUM TO LETRAS
+// ════════════════════════════════════
+function numToLetras(n){
+  const u=['','un','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte'];
+  const d=['','','veinti','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  const c=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+  if(n===100)return'cien';if(n<21)return u[n];
+  if(n<100){const dd=Math.floor(n/10);const uu=n%10;return uu===0?d[dd]:dd===2?'veinti'+u[uu]:d[dd]+' y '+u[uu];}
+  if(n<1000){const cc=Math.floor(n/100);const r=n%100;return r===0?c[cc]:c[cc]+' '+numToLetras(r);}
+  if(n<1000000){const m=Math.floor(n/1000);const r=n%1000;const pm=m===1?'mil':numToLetras(m)+' mil';return r===0?pm:pm+' '+numToLetras(r);}
+  return n.toLocaleString('es-AR');
+}
+
+// INIT
+document.getElementById('loading-screen').style.display='none';
+document.getElementById('login-screen').style.display='block';
+// ════════════════════════════════════
+// PLANILLAS
+// ════════════════════════════════════
+const CONCEPTOS_PLANILLA = [
+  {idx:0,label:'Matrícula'},
+  {idx:1,label:'Cuota N°1 — Marzo'},
+  {idx:2,label:'Cuota N°2 — Abril'},
+  {idx:3,label:'Cuota N°3 — Mayo'},
+  {idx:4,label:'Cuota N°4 — Junio'},
+  {idx:5,label:'Cuota N°5 — Julio'},
+  {idx:6,label:'Cuota N°6 — Agosto'},
+  {idx:7,label:'Cuota N°7 — Septiembre'},
+  {idx:8,label:'Cuota N°8 — Octubre'},
+  {idx:9,label:'Cuota N°9 — Noviembre'},
+  {idx:10,label:'Cuota N°10 — Diciembre'}
+];
+
+function renderPlanilla() {
+  const carrera = document.getElementById('plan-carrera')?.value || 'Radiología';
+  const anio = parseInt(document.getElementById('plan-anio')?.value || '1');
+  const vista = document.getElementById('plan-vista')?.value || 'mes';
+  const container = document.getElementById('planilla-container');
+  if (!container) return;
+
+  const als = alumnos
+    .filter(a => a.carrera === carrera && parseInt(a.año) === anio)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  if (!als.length) {
+    container.innerHTML = '<p style="color:var(--text2);padding:1rem;text-align:center">No hay alumnos en esta carrera y año.</p>';
+    return;
+  }
+
+  if (vista === 'completo') {
+    renderPlanillaCompleta(als, carrera, anio, container);
+  } else {
+    renderPlanillaMes(als, carrera, anio, container);
+  }
+}
+window.renderPlanilla = renderPlanilla;
+
+function renderPlanillaMes(als, carrera, anio, container) {
+  // Para cada cuota/mes, mostrar quién pagó y quién no
+  const MONTO_MORA = MONTO_BASE + RECARGO_STD;
+  let htmlMeses = '';
+
+  CONCEPTOS_PLANILLA.forEach(c => {
+    const pagaron = als.filter(a => pagos.some(p => p.alumnoId === a.id && p.cuota == c.idx));
+    const deben = als.filter(a => !pagos.some(p => p.alumnoId === a.id && p.cuota == c.idx));
+    const totalCobrado = pagaron.reduce((s, a) => {
+      const p = pagos.find(x => x.alumnoId === a.id && x.cuota == c.idx);
+      return s + (p?.total || 0);
+    }, 0);
+    const totalAdeudado = deben.length * MONTO_MORA;
+
+    const rowsPagaron = pagaron.map(a => {
+      const p = pagos.find(x => x.alumnoId === a.id && x.cuota == c.idx);
+      const fechaFmt = p?.fecha ? p.fecha.split('-').reverse().join('/') : '—';
+      return `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid var(--border2);font-weight:500">${a.nombre}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)"><span style="padding:2px 8px;border-radius:20px;font-size:11px;background:rgba(31,214,138,0.15);color:var(--green);border:1px solid rgba(31,214,138,0.25)">✅ Pagó</span></td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)"><span class="badge ${p.forma==='Efectivo'?'badge-ef':'badge-tr'}" style="font-size:11px">${p.forma==='Efectivo'?'💵 Efectivo':'🏦 Transferencia'}</span></td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--text2)">${fechaFmt}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">$${(p?.monto||MONTO_BASE).toLocaleString('es-AR')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)">${p?.recargo>0?'<span style="color:var(--amber);font-weight:600">+$'+p.recargo.toLocaleString('es-AR')+'</span>':'<span style="color:var(--text3)">—</span>'}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);font-weight:700;color:var(--green)">$${(p?.total||0).toLocaleString('es-AR')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)"><span style="font-size:11px;color:var(--green)">Sin mora</span></td>
+      </tr>`;
+    }).join('');
+
+    const rowsDeben = deben.map(a => `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid var(--border2);font-weight:500">${a.nombre}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)"><span style="padding:2px 8px;border-radius:20px;font-size:11px;background:rgba(255,77,94,0.12);color:var(--red);border:1px solid rgba(255,77,94,0.25)">❌ No pagó</span></td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--text3)">—</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--text3)">—</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--text3)">$${MONTO_BASE.toLocaleString('es-AR')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--amber);font-weight:600">+$${RECARGO_STD.toLocaleString('es-AR')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2);font-weight:700;color:var(--red)">$${MONTO_MORA.toLocaleString('es-AR')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border2)"><span style="font-size:11px;color:var(--amber);font-weight:600">⚠️ En mora</span></td>
+      </tr>`).join('');
+
+    htmlMeses += `
+      <div style="margin-bottom:20px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <div style="background:rgba(45,125,210,0.1);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <span style="font-weight:600;color:#fff;font-size:14px">${c.label}</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(31,214,138,0.15);color:var(--green)">✅ ${pagaron.length} pagaron</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,77,94,0.12);color:var(--red)">❌ ${deben.length} deben</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(31,214,138,0.1);color:var(--green)">💰 $${totalCobrado.toLocaleString('es-AR')}</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,77,94,0.08);color:var(--red)">📋 Adeudado: $${totalAdeudado.toLocaleString('es-AR')}</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:rgba(255,255,255,0.03)">
+            <th style="padding:7px 10px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Alumno</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Estado</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Forma</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Fecha</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Monto base</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Recargo</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Total</th>
+            <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);font-size:10px">Mora</th>
+          </tr></thead>
+          <tbody>${rowsPagaron}${rowsDeben}</tbody>
+        </table>
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = htmlMeses;
+}
+
+function renderPlanillaCompleta(als, carrera, anio, container) {
+  let totalCobrado=0, totalAdeudado=0, pagaron=0, deben=0;
+  const MONTO_MORA = MONTO_BASE + RECARGO_STD;
+  const rows = [];
+  als.forEach((a, ai) => {
+    CONCEPTOS_PLANILLA.forEach((c, ci) => {
+      const pago = pagos.find(p => p.alumnoId === a.id && p.cuota == c.idx);
+      const pagado = !!pago;
+      const bg = ai%2===0?'rgba(255,255,255,0.02)':'transparent';
+      const fechaFmt = pago?.fecha ? pago.fecha.split('-').reverse().join('/'):'—';
+      const montoBase = pago?.monto||MONTO_BASE;
+      const recargo = pagado?(pago.recargo||0):RECARGO_STD;
+      const total = pagado?pago.total:MONTO_MORA;
+      if(pagado){totalCobrado+=pago.total;pagaron++;}else{totalAdeudado+=total;deben++;}
+      const borderBottom = ci===10?'2px solid var(--border)':'1px solid var(--border2)';
+      const nombreCell = ci===0?`<td rowspan="11" style="padding:9px 12px;border-bottom:2px solid var(--border);font-weight:600;vertical-align:top;border-right:1px solid var(--border)">${a.nombre}</td>`:'';
+      if(pagado){
+        rows.push(`<tr style="background:${bg}">${nombreCell}
+          <td style="padding:7px 8px;border-bottom:${borderBottom};font-weight:500;color:var(--blue3)">${c.label}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom}"><span style="padding:2px 8px;border-radius:20px;font-size:11px;background:rgba(31,214,138,0.15);color:var(--green)">✅ Pagó</span></td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom}"><span class="badge ${pago.forma==='Efectivo'?'badge-ef':'badge-tr'}" style="font-size:11px">${pago.forma==='Efectivo'?'💵 Efectivo':'🏦 Transf.'}</span></td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--text2)">${fechaFmt}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom}">$${montoBase.toLocaleString('es-AR')}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom}">${recargo>0?'<span style="color:var(--amber);font-weight:600">+$'+recargo.toLocaleString('es-AR')+'</span>':'<span style="color:var(--text3)">—</span>'}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};font-weight:700;color:var(--green)">$${pago.total.toLocaleString('es-AR')}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom}"><span style="font-size:11px;color:var(--green)">Sin mora</span></td>
+        </tr>`);
+      } else {
+        rows.push(`<tr style="background:${bg}">${nombreCell}
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--text3)">${c.label}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom}"><span style="padding:2px 8px;border-radius:20px;font-size:11px;background:rgba(255,77,94,0.12);color:var(--red)">❌ No pagó</span></td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--text3)">—</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--text3)">—</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--text3)">$${MONTO_BASE.toLocaleString('es-AR')}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--amber);font-weight:600">+$${RECARGO_STD.toLocaleString('es-AR')}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};font-weight:700;color:var(--red)">$${MONTO_MORA.toLocaleString('es-AR')}</td>
+          <td style="padding:7px 8px;border-bottom:${borderBottom};color:var(--amber);font-weight:600">⚠️ En mora</td>
+        </tr>`);
+      }
+    });
+  });
+  container.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <div style="padding:8px 14px;border-radius:8px;background:rgba(31,214,138,0.1);border:1px solid rgba(31,214,138,0.2);font-size:12px;color:var(--green)">✅ Pagas: <strong>${pagaron}</strong></div>
+      <div style="padding:8px 14px;border-radius:8px;background:rgba(255,77,94,0.08);border:1px solid rgba(255,77,94,0.2);font-size:12px;color:var(--red)">❌ Sin pagar: <strong>${deben}</strong></div>
+      <div style="padding:8px 14px;border-radius:8px;background:rgba(31,214,138,0.08);border:1px solid rgba(31,214,138,0.15);font-size:12px;color:var(--green)">💰 Cobrado: <strong>$${totalCobrado.toLocaleString('es-AR')}</strong></div>
+      <div style="padding:8px 14px;border-radius:8px;background:rgba(255,77,94,0.08);border:1px solid rgba(255,77,94,0.15);font-size:12px;color:var(--red)">📋 Adeudado c/mora: <strong>$${totalAdeudado.toLocaleString('es-AR')}</strong></div>
+    </div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:rgba(45,125,210,0.06)">
+        <th style="padding:10px 12px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px;min-width:160px">Alumno</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Concepto</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Estado</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Forma</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Fecha</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Monto base</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Recargo</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Total</th>
+        <th style="padding:10px 8px;text-align:left;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:11px">Mora</th>
+      </tr></thead>
+      <tbody>${rows.join('')}</tbody>
+    </table></div>`;
+}
+
+function imprimirPlanilla() {
+  const carrera = document.getElementById('plan-carrera')?.value || '';
+  const anio = parseInt(document.getElementById('plan-anio')?.value || '1');
+  const vista = document.getElementById('plan-vista')?.value || 'mes';
+  const MONTO_MORA = MONTO_BASE + RECARGO_STD;
+
+  const als = alumnos
+    .filter(a => a.carrera === carrera && parseInt(a.año) === anio)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  if (!als.length) { alert('No hay alumnos en esta selección.'); return; }
+
+  let bodyHTML = '';
+  let totalCobradoGlobal = 0, totalAdeudadoGlobal = 0;
+
+  if (vista === 'mes') {
+    CONCEPTOS_PLANILLA.forEach(c => {
+      const pagaron = als.filter(a => pagos.some(p => p.alumnoId === a.id && p.cuota == c.idx));
+      const deben = als.filter(a => !pagos.some(p => p.alumnoId === a.id && p.cuota == c.idx));
+      const totalCobrado = pagaron.reduce((s,a)=>{const p=pagos.find(x=>x.alumnoId===a.id&&x.cuota==c.idx);return s+(p?.total||0);},0);
+      const totalAdeudado = deben.length * MONTO_MORA;
+      totalCobradoGlobal += totalCobrado; totalAdeudadoGlobal += totalAdeudado;
+      const rows = [...pagaron.map(a=>{
+        const p=pagos.find(x=>x.alumnoId===a.id&&x.cuota==c.idx);
+        const f=p?.fecha?p.fecha.split('-').reverse().join('/'):'—';
+        return `<tr><td style="font-weight:500">${a.nombre}</td><td style="color:#16a34a;font-weight:600">✅ Pagó</td><td>${p?.forma==='Efectivo'?'💵 Efectivo':'🏦 Transferencia'}</td><td>${f}</td><td>$${(p?.monto||MONTO_BASE).toLocaleString('es-AR')}</td><td>${p?.recargo>0?'+$'+p.recargo.toLocaleString('es-AR'):'—'}</td><td style="font-weight:700;color:#16a34a">$${(p?.total||0).toLocaleString('es-AR')}</td><td style="color:#16a34a">Sin mora</td></tr>`;
+      }),...deben.map(a=>`<tr><td style="font-weight:500">${a.nombre}</td><td style="color:#dc2626;font-weight:600">❌ No pagó</td><td>—</td><td>—</td><td>$${MONTO_BASE.toLocaleString('es-AR')}</td><td style="color:#d97706">+$${RECARGO_STD.toLocaleString('es-AR')}</td><td style="font-weight:700;color:#dc2626">$${MONTO_MORA.toLocaleString('es-AR')}</td><td style="color:#d97706;font-weight:600">⚠️ En mora</td></tr>`)].join('');
+      bodyHTML += `<h3 style="margin:16px 0 6px;color:#1a3a6b;font-size:12px">${c.label} — ✅ ${pagaron.length} pagaron · ❌ ${deben.length} deben · Cobrado: $${totalCobrado.toLocaleString('es-AR')} · Adeudado: $${totalAdeudado.toLocaleString('es-AR')}</h3>
+      <table><thead><tr><th>Alumno</th><th>Estado</th><th>Forma</th><th>Fecha</th><th>Monto base</th><th>Recargo</th><th>Total</th><th>Mora</th></tr></thead><tbody>${rows}</tbody></table>`;
+    });
+  } else {
+    const rows = als.map((a,ai)=>CONCEPTOS_PLANILLA.map((c,ci)=>{
+      const p=pagos.find(x=>x.alumnoId===a.id&&x.cuota==c.idx);
+      const pagado=!!p; const f=p?.fecha?p.fecha.split('-').reverse().join('/'):'—';
+      const total=pagado?p.total:MONTO_MORA; const rec=pagado?(p.recargo||0):RECARGO_STD;
+      if(pagado)totalCobradoGlobal+=p.total;else totalAdeudadoGlobal+=total;
+      const nombre=ci===0?`<td rowspan="11" style="font-weight:600;vertical-align:top;border-right:1px solid #ddd;border-bottom:2px solid #1a3a6b">${a.nombre}</td>`:'';
+      const bb=ci===10?'border-bottom:2px solid #1a3a6b':'';
+      return `<tr style="${bb}${ai%2===0?';background:#f5f8ff':''}">${nombre}<td>${c.label}</td><td style="color:${pagado?'#16a34a':'#dc2626'};font-weight:600">${pagado?'✅ Pagó':'❌ No pagó'}</td><td>${pagado?(p.forma==='Efectivo'?'💵 Efectivo':'🏦 Transf.'):'—'}</td><td>${f}</td><td>$${(pagado?p.monto:MONTO_BASE).toLocaleString('es-AR')}</td><td style="color:${rec>0?'#d97706':'#999'}">${rec>0?'+$'+rec.toLocaleString('es-AR'):'—'}</td><td style="font-weight:700;color:${pagado?'#16a34a':'#dc2626'}">$${total.toLocaleString('es-AR')}</td><td style="color:${pagado?'#16a34a':'#d97706'};font-weight:600">${pagado?'Sin mora':'⚠️ En mora'}</td></tr>`;
+    }).join('')).join('');
+    bodyHTML = `<table><thead><tr><th>Alumno</th><th>Concepto</th><th>Estado</th><th>Forma</th><th>Fecha</th><th>Monto base</th><th>Recargo</th><th>Total</th><th>Mora</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  const w = window.open('','_blank','width=960,height=800');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Planilla — ${carrera} ${anio}° año</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:16px}
+    h2{font-size:15px;color:#1a3a6b;margin-bottom:2px}
+    h3{page-break-inside:avoid}
+    .sub{font-size:11px;color:#555;margin-bottom:3px}
+    .resumen{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+    .res{padding:4px 10px;border-radius:5px;border:1px solid #ddd;font-size:10px}
+    table{width:100%;border-collapse:collapse;margin-bottom:4px}
+    th{background:#1a3a6b;color:#fff;padding:5px 6px;text-align:left;font-size:9px;text-transform:uppercase}
+    td{padding:5px 6px;border-bottom:1px solid #eee}
+    .footer{margin-top:12px;font-size:9px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:6px}
+    .btn-print{display:block;width:160px;margin:12px auto 0;padding:8px;background:#1a3a6b;color:#fff;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer}
+    @media print{.btn-print{display:none}}
+  </style></head><body>
+  <h2>🎓 Instituto Almafuerte</h2>
+  <div class="sub">${carrera} — ${anio}° año</div>
+  <div class="sub">Generado el ${new Date().toLocaleDateString('es-AR')}</div>
+  <div class="resumen">
+    <div class="res">👥 Alumnos: <strong>${als.length}</strong></div>
+    <div class="res">💰 Total cobrado: <strong>$${totalCobradoGlobal.toLocaleString('es-AR')}</strong></div>
+    <div class="res">📋 Total adeudado c/mora: <strong>$${totalAdeudadoGlobal.toLocaleString('es-AR')}</strong></div>
+  </div>
+  ${bodyHTML}
+  <div class="footer">Instituto Almafuerte · U.E.G.P N°58</div>
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
+  </body></html>`);
+  w.document.close();
+}
+window.imprimirPlanilla = imprimirPlanilla;
+
+function enviarWATodos() {
+  const fil = document.getElementById('fil-morosos-carrera')?.value || '';
+  const morosos = alumnos.filter(a => calcDeuda(a.id, a.año).length > 0 && (!fil || a.carrera === fil) && a.cel);
+  if (!morosos.length) { alert('No hay morosos con número de WhatsApp cargado.'); return; }
+  if (!confirm(`Se abrirán ${morosos.length} conversaciones de WhatsApp. ¿Continuar?`)) return;
+  morosos.forEach((a, i) => {
+    const deuda = calcDeuda(a.id, a.año);
+    const monto = deuda.length * (MONTO_BASE + RECARGO_STD);
+    const msg = encodeURIComponent(`Estimado/a ${a.nombre}, le informamos que registra ${deuda.length} cuota${deuda.length>1?'s':''} adeudada${deuda.length>1?'s':''} en el Instituto Superior Almafuerte U.E.G.P N°58 por un total de $${monto.toLocaleString('es-AR')} (incluye recargo por mora). Le solicitamos que se acerque a regularizar su situación a la brevedad. Ante cualquier consulta, no dude en comunicarse. Muchas gracias.`);
+    setTimeout(() => window.open(`https://wa.me/${a.cel}?text=${msg}`, '_blank'), i * 800);
+  });
+}
+window.enviarWATodos = enviarWATodos;
+
+</script>
+</body>
+</html>
